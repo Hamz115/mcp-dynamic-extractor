@@ -197,14 +197,6 @@ Set `headless=False` in browser tools to see what's happening:
 - **Credential safety** - credentials only used for direct authentication
 - **No storage** - extracted content returned directly, not stored
 
-## 📚 Documentation
-
-See `MCP_WEB_EXTRACTOR_DOCUMENTATION.md` for comprehensive technical documentation including:
-- Detailed API reference
-- Architecture overview
-- Advanced configuration options
-- Performance optimization tips
-
 ## 🤝 Contributing
 
 1. Fork the repository
