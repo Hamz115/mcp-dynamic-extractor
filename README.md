@@ -15,11 +15,7 @@ A comprehensive Model Context Protocol (MCP) server that provides unlimited cont
 ## 📋 Available Tools
 
 ### 🚀 **ULTIMATE TOOL (Recommended)**
-- `extract_ultimate` - **THE BEST OF EVERYTHING**: Unlimited extraction + optional Google auth + 100 scroll attempts
-
-### 🔥 Advanced Dynamic Extraction  
-- `extract_dynamic_content` - Google services with authentication (50 scroll attempts)
-- `extract_unlimited_dynamic_content` - Any JavaScript-heavy website, unlimited content (100 scroll attempts, no auth)
+- `extract_dynamic_content` - **THE ULTIMATE EXTRACTION TOOL**: Google authentication + 100 scroll attempts + 4 extraction strategies + unlimited content
 
 ### ⚡ Standard Extraction
 - `extract_url_content` - Basic HTTP extraction
@@ -126,7 +122,7 @@ Credentials:
 Username: your-email@gmail.com
 Password: your-password-here
 
-Use extract_ultimate for the ultimate extraction experience with unlimited content and Google authentication.
+Use extract_dynamic_content for the ultimate extraction experience with unlimited content and Google authentication.
 ```
 
 **For any public JavaScript-heavy sites (no authentication):**
@@ -135,7 +131,7 @@ Extract all content from this dynamic website, ensuring complete loading of lazy
 
 https://complex-website.com/long-article
 
-Use extract_ultimate with empty credentials for unlimited extraction of public sites.
+Use extract_dynamic_content with empty credentials for unlimited extraction of public sites.
 Wait time: 15 seconds for initial load, then use progressive scrolling to capture everything.
 ```
 
@@ -149,14 +145,14 @@ For now, use browser session extraction if you're already logged in.
 
 ### 💡 Quick Tips
 
-**🚀 RECOMMENDED: Use the ultimate tool for everything:**
-- `extract_ultimate` - Works for both authenticated AND public sites
-- **With credentials** → Perfect for Google/Gemini with unlimited extraction
-- **Without credentials** → Perfect for any public JavaScript site with unlimited extraction
+**🚀 RECOMMENDED: Use extract_dynamic_content for everything:**
+- **THE ULTIMATE TOOL** - Works for both authenticated AND public sites
+- **With Google credentials** → Perfect for Google/Gemini with unlimited extraction
+- **For public sites** → Just use it without credentials for any JavaScript-heavy site
 
 **Currently supported authentication:**
-- ✅ **Google services** (Gemini, Google Docs, etc.) → Use the ultimate tool with credentials
-- ✅ **Public JavaScript sites** → Use the ultimate tool without credentials  
+- ✅ **Google services** (Gemini, Google Docs, etc.) → Use `extract_dynamic_content` with credentials
+- ✅ **Public JavaScript sites** → Use `extract_dynamic_content` without credentials  
 - ✅ **Static websites** → `extract_url_content` (fastest for simple sites)
 - ✅ **Browser sessions** → `extract_with_browser_session` (if you have cookies)
 
@@ -171,7 +167,7 @@ For now, use browser session extraction if you're already logged in.
 ### Extract Unlimited Content from Any Site
 ```python
 # For any JavaScript-heavy website
-result = await extract_unlimited_dynamic_content(
+result = await extract_dynamic_content(
     "https://complex-website.com/long-content",
     wait_time=15
 )
@@ -201,7 +197,7 @@ result = await extract_with_browser_session(
 ### Unlimited Content Extraction
 - **No character limits** - extracts complete conversations/articles
 - **Progressive scrolling** - up to 100 scroll attempts for complete loading
-- **Multi-strategy extraction** - 3 different methods with intelligent fallbacks
+- **Multi-strategy extraction** - 4 different methods with intelligent fallbacks
 - **Smart content detection** - identifies and extracts relevant content
 
 ### Authentication Support
