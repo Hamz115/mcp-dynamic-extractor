@@ -230,6 +230,7 @@ async def login_and_extract_google(url: str, email: str, password: str) -> str:
                 await page.wait_for_timeout(10000)  # Increased wait time
                 
                 # Step 4: Wait for successful login or manual intervention
+                wait_timeout = 120  # Default timeout for login
                 print(f"\nWaiting up to {wait_timeout} seconds for login completion...")
                 print("If you see 2FA prompts, CAPTCHA, or other verification, please complete them manually.")
                 print("The browser window will stay open for your interaction.")
@@ -285,7 +286,7 @@ The browser will remain open for you to complete the login manually.
                 await page.goto(url, wait_until='domcontentloaded', timeout=60000)
                 
                 # Step 2.5: Wait for the page to fully load and show chat content
-                print("⏳ Waiting for chat content to load...")
+                print("Waiting for chat content to load...")
                 print("Please wait while the conversation loads...")
                 
                 # Wait for common Gemini chat elements to appear
@@ -311,7 +312,7 @@ The browser will remain open for you to complete the login manually.
                                 for element in elements:
                                     text_content = await element.inner_text()
                                     if text_content and len(text_content.strip()) > 50:
-                                        print(f"✅ Chat content detected! Found content with {len(text_content)} characters")
+                                        print(f"Chat content detected! Found content with {len(text_content)} characters")
                                         chat_loaded = True
                                         break
                                 if chat_loaded:
@@ -319,41 +320,41 @@ The browser will remain open for you to complete the login manually.
                         
                         if not chat_loaded:
                             load_attempts += 1
-                            print(f"⏳ Still loading... (attempt {load_attempts}/{max_load_attempts})")
+                            print(f"Still loading... (attempt {load_attempts}/{max_load_attempts})")
                             await page.wait_for_timeout(2000)  # Wait 2 seconds between checks
                             
                     except Exception as e:
                         load_attempts += 1
-                        print(f"⏳ Loading check failed, retrying... (attempt {load_attempts}/{max_load_attempts})")
+                        print(f"Loading check failed, retrying... (attempt {load_attempts}/{max_load_attempts})")
                         await page.wait_for_timeout(2000)
                 
                 if chat_loaded:
-                    print("🎉 Chat content has loaded successfully!")
+                    print("Chat content has loaded successfully!")
                     print("Now you should be able to see the conversation content.")
                 else:
-                    print("⚠️ Chat content may still be loading, but proceeding with manual scroll...")
+                    print("Chat content may still be loading, but proceeding with manual scroll...")
                 
                 # Additional wait to ensure everything is rendered
-                print("⏳ Allowing extra time for complete rendering...")
+                print("Allowing extra time for complete rendering...")
                 await page.wait_for_timeout(5000)  # Extra 5 seconds for full rendering
                 
                 # Step 6: MANUAL SCROLL WAIT - Give user time to scroll to the top
-                print("🚨 MANUAL SCROLL TIME! 🚨")
+                print("MANUAL SCROLL TIME!")
                 print("=" * 60)
                 print("PLEASE MANUALLY SCROLL TO THE VERY TOP OF THE CONVERSATION NOW!")
-                print("You have 180 seconds (3 minutes) to:")
+                print("You have 90 seconds (1.5 minutes) to:")
                 print("1. Scroll ALL THE WAY UP to load the complete conversation history")
                 print("2. Make sure you reach the very first message")
                 print("3. Wait for all content to load")
                 print("=" * 60)
-                print("Waiting 180 seconds for manual scrolling...")
+                print("Waiting 90 seconds for manual scrolling...")
                 
-                # Wait exactly 180 seconds for manual scrolling
-                for countdown in range(180, 0, -1):
-                    print(f"⏰ Manual scroll time remaining: {countdown} seconds")
+                # Wait exactly 90 seconds for manual scrolling
+                for countdown in range(90, 0, -1):
+                    print(f"Manual scroll time remaining: {countdown} seconds")
                     await page.wait_for_timeout(1000)  # Wait 1 second
                 
-                print("✅ Manual scroll time complete! Starting extraction...")
+                print("Manual scroll time complete! Starting extraction...")
                 print("=" * 60)
                 
                 # Step 7: Extract content from current page
@@ -440,6 +441,46 @@ This might be due to:
         return "Playwright not installed. Run: pip install playwright && playwright install"
     except Exception as e:
         return f"Browser automation failed: {str(e)}"
+
+@mcp.tool()
+async def extract_url_content(url: str) -> str:
+    """
+    Extract raw content from any URL
+    
+    Args:
+        url: The URL to fetch content from (e.g., https://www.espncricinfo.com/)
+    
+    Returns:
+        The raw HTML/text content from the website
+    """
+    try:
+        async with httpx.AsyncClient(
+            timeout=30.0,
+            headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            }
+        ) as client:
+            response = await client.get(url)
+            response.raise_for_status()
+            
+            # Return basic info + content
+            result = f"""
+URL: {url}
+Status Code: {response.status_code}
+Content Type: {response.headers.get('content-type', 'Unknown')}
+Content Length: {len(response.text)} characters
+
+=== RAW CONTENT ===
+{response.text}
+"""
+            return result
+            
+    except httpx.RequestError as e:
+        return f"Request failed: {str(e)}"
+    except httpx.HTTPStatusError as e:
+        return f"HTTP error {e.response.status_code}: {e.response.text}"
+    except Exception as e:
+        return f"Unexpected error: {str(e)}"
 
 @mcp.tool()
 async def login_google_with_help(url: str, email: str, password: str, wait_timeout: int = 120) -> str:
@@ -564,79 +605,7 @@ The browser will remain open for you to complete the login manually.
                 await page.goto(url, wait_until='networkidle')
                 await asyncio.sleep(3)  # Wait for page to fully load
                 
-                # Step 2.5: Wait for the page to fully load and show chat content
-                print("⏳ Waiting for chat content to load...")
-                print("Please wait while the conversation loads...")
-                
-                # Wait for common Gemini chat elements to appear
-                chat_loaded = False
-                load_attempts = 0
-                max_load_attempts = 30  # 30 attempts = up to 60 seconds
-                
-                while not chat_loaded and load_attempts < max_load_attempts:
-                    try:
-                        # Check for various Gemini chat indicators
-                        chat_indicators = [
-                            '[data-testid*="conversation"]',
-                            '[class*="conversation"]', 
-                            '[class*="message"]',
-                            'main[role="main"]',
-                            '[role="main"]'
-                        ]
-                        
-                        for indicator in chat_indicators:
-                            elements = await page.query_selector_all(indicator)
-                            if elements and len(elements) > 0:
-                                # Check if any element has substantial text content
-                                for element in elements:
-                                    text_content = await element.inner_text()
-                                    if text_content and len(text_content.strip()) > 50:
-                                        print(f"✅ Chat content detected! Found content with {len(text_content)} characters")
-                                        chat_loaded = True
-                                        break
-                                if chat_loaded:
-                                    break
-                        
-                        if not chat_loaded:
-                            load_attempts += 1
-                            print(f"⏳ Still loading... (attempt {load_attempts}/{max_load_attempts})")
-                            await page.wait_for_timeout(2000)  # Wait 2 seconds between checks
-                            
-                    except Exception as e:
-                        load_attempts += 1
-                        print(f"⏳ Loading check failed, retrying... (attempt {load_attempts}/{max_load_attempts})")
-                        await page.wait_for_timeout(2000)
-                
-                if chat_loaded:
-                    print("🎉 Chat content has loaded successfully!")
-                    print("Now you should be able to see the conversation content.")
-                else:
-                    print("⚠️ Chat content may still be loading, but proceeding with manual scroll...")
-                
-                # Additional wait to ensure everything is rendered
-                print("⏳ Allowing extra time for complete rendering...")
-                await page.wait_for_timeout(5000)  # Extra 5 seconds for full rendering
-                
-                # Step 6: MANUAL SCROLL WAIT - Give user time to scroll to the top
-                print("🚨 MANUAL SCROLL TIME! 🚨")
-                print("=" * 60)
-                print("PLEASE MANUALLY SCROLL TO THE VERY TOP OF THE CONVERSATION NOW!")
-                print("You have 180 seconds (3 minutes) to:")
-                print("1. Scroll ALL THE WAY UP to load the complete conversation history")
-                print("2. Make sure you reach the very first message")
-                print("3. Wait for all content to load")
-                print("=" * 60)
-                print("Waiting 180 seconds for manual scrolling...")
-                
-                # Wait exactly 180 seconds for manual scrolling
-                for countdown in range(180, 0, -1):
-                    print(f"⏰ Manual scroll time remaining: {countdown} seconds")
-                    await page.wait_for_timeout(1000)  # Wait 1 second
-                
-                print("✅ Manual scroll time complete! Starting extraction...")
-                print("=" * 60)
-                
-                # Step 7: Extract content
+                # Step 6: Extract content
                 content = await page.content()
                 
                 # Parse with BeautifulSoup
@@ -904,7 +873,7 @@ async def extract_with_browser_session(url: str, browser_cookies: str) -> str:
             
             # Check if we got actual content vs login redirect
             if 'sign' in response.text.lower() and len(response.text) < 5000:
-                return f"⚠️ Authentication may have failed. Got potential login page.\n\nResponse preview:\n{response.text[:500]}..."
+                return f"Authentication may have failed. Got potential login page.\n\nResponse preview:\n{response.text[:500]}..."
             
             # Parse HTML with BeautifulSoup
             soup = BeautifulSoup(response.text, 'lxml')
@@ -936,46 +905,6 @@ async def extract_with_browser_session(url: str, browser_cookies: str) -> str:
             
     except Exception as e:
         return f"Error extracting with browser session: {str(e)}\nURL: {url}"
-
-@mcp.tool()
-async def extract_url_content(url: str) -> str:
-    """
-    Extract raw content from any URL
-    
-    Args:
-        url: The URL to fetch content from (e.g., https://www.espncricinfo.com/)
-    
-    Returns:
-        The raw HTML/text content from the website
-    """
-    try:
-        async with httpx.AsyncClient(
-            timeout=30.0,
-            headers={
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-            }
-        ) as client:
-            response = await client.get(url)
-            response.raise_for_status()
-            
-            # Return basic info + content
-            result = f"""
-URL: {url}
-Status Code: {response.status_code}
-Content Type: {response.headers.get('content-type', 'Unknown')}
-Content Length: {len(response.text)} characters
-
-=== RAW CONTENT ===
-{response.text}
-"""
-            return result
-            
-    except httpx.RequestError as e:
-        return f"Request failed: {str(e)}"
-    except httpx.HTTPStatusError as e:
-        return f"HTTP error {e.response.status_code}: {e.response.text}"
-    except Exception as e:
-        return f"Unexpected error: {str(e)}"
 
 @mcp.tool()
 async def extract_url_content_clean(url: str) -> str:
@@ -1173,7 +1102,7 @@ async def extract_dynamic_content(url: str, email: str, password: str) -> str:
                 await page.goto(url, wait_until='domcontentloaded', timeout=60000)
                 
                 # Step 2.5: Wait for the page to fully load and show chat content
-                print("⏳ Waiting for chat content to load...")
+                print("Waiting for chat content to load...")
                 print("Please wait while the conversation loads...")
                 
                 # Wait for common Gemini chat elements to appear
@@ -1199,7 +1128,7 @@ async def extract_dynamic_content(url: str, email: str, password: str) -> str:
                                 for element in elements:
                                     text_content = await element.inner_text()
                                     if text_content and len(text_content.strip()) > 50:
-                                        print(f"✅ Chat content detected! Found content with {len(text_content)} characters")
+                                        print(f"Chat content detected! Found content with {len(text_content)} characters")
                                         chat_loaded = True
                                         break
                                 if chat_loaded:
@@ -1207,41 +1136,41 @@ async def extract_dynamic_content(url: str, email: str, password: str) -> str:
                         
                         if not chat_loaded:
                             load_attempts += 1
-                            print(f"⏳ Still loading... (attempt {load_attempts}/{max_load_attempts})")
+                            print(f"Still loading... (attempt {load_attempts}/{max_load_attempts})")
                             await page.wait_for_timeout(2000)  # Wait 2 seconds between checks
                             
                     except Exception as e:
                         load_attempts += 1
-                        print(f"⏳ Loading check failed, retrying... (attempt {load_attempts}/{max_load_attempts})")
+                        print(f"Loading check failed, retrying... (attempt {load_attempts}/{max_load_attempts})")
                         await page.wait_for_timeout(2000)
                 
                 if chat_loaded:
-                    print("🎉 Chat content has loaded successfully!")
+                    print("Chat content has loaded successfully!")
                     print("Now you should be able to see the conversation content.")
                 else:
-                    print("⚠️ Chat content may still be loading, but proceeding with manual scroll...")
+                    print("Chat content may still be loading, but proceeding with manual scroll...")
                 
                 # Additional wait to ensure everything is rendered
-                print("⏳ Allowing extra time for complete rendering...")
+                print("Allowing extra time for complete rendering...")
                 await page.wait_for_timeout(5000)  # Extra 5 seconds for full rendering
                 
                 # Step 6: MANUAL SCROLL WAIT - Give user time to scroll to the top
-                print("🚨 MANUAL SCROLL TIME! 🚨")
+                print("MANUAL SCROLL TIME!")
                 print("=" * 60)
                 print("PLEASE MANUALLY SCROLL TO THE VERY TOP OF THE CONVERSATION NOW!")
-                print("You have 180 seconds (3 minutes) to:")
+                print("You have 90 seconds (1.5 minutes) to:")
                 print("1. Scroll ALL THE WAY UP to load the complete conversation history")
                 print("2. Make sure you reach the very first message")
                 print("3. Wait for all content to load")
                 print("=" * 60)
-                print("Waiting 180 seconds for manual scrolling...")
+                print("Waiting 90 seconds for manual scrolling...")
                 
-                # Wait exactly 180 seconds for manual scrolling
-                for countdown in range(180, 0, -1):
-                    print(f"⏰ Manual scroll time remaining: {countdown} seconds")
+                # Wait exactly 90 seconds for manual scrolling
+                for countdown in range(90, 0, -1):
+                    print(f"Manual scroll time remaining: {countdown} seconds")
                     await page.wait_for_timeout(1000)  # Wait 1 second
                 
-                print("✅ Manual scroll time complete! Starting extraction...")
+                print("Manual scroll time complete! Starting extraction...")
                 print("=" * 60)
                 
                 # Step 7: Extract content from current page
