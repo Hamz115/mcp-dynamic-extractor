@@ -65,7 +65,7 @@ playwright install
 
 5. **Run the server**:
 ```bash
-python web_extractor.py
+python main.py
 ```
 
 ## 🔧 Configuration
@@ -82,7 +82,7 @@ Add to your MCP client configuration (e.g., `mcp.json`):
       "name": "Web Content Extractor",
       "description": "Advanced MCP server with unlimited content extraction",
       "command": "C:/full/path/to/your/venv/Scripts/python.exe",
-      "args": ["C:/full/path/to/web_extractor.py"],
+      "args": ["C:/full/path/to/main.py"],
       "protocol": "mcp",
       "capabilities": ["tools"]
     }
@@ -100,11 +100,11 @@ Add to your MCP client configuration (e.g., `mcp.json`):
 ```json
 // Windows example:
 "command": "C:/Users/YourName/Documents/mcp-server/venv/Scripts/python.exe",
-"args": ["C:/Users/YourName/Documents/mcp-server/web_extractor.py"]
+"args": ["C:/Users/YourName/Documents/mcp-server/main.py"]
 
 // macOS/Linux example:
 "command": "/Users/YourName/Documents/mcp-server/venv/bin/python",
-"args": ["/Users/YourName/Documents/mcp-server/web_extractor.py"]
+"args": ["/Users/YourName/Documents/mcp-server/main.py"]
 ```
 
 ## 📖 Usage Examples

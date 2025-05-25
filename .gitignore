@@ -63,10 +63,6 @@ playwright-browsers/
 .coverage
 htmlcov/
 
-# Personal notes or sensitive data
-notes.txt
-secrets.txt
-credentials.txt
 
 # MCP configuration (user-specific paths)
 mcp.json 
