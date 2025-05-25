@@ -15,7 +15,7 @@ A comprehensive Model Context Protocol (MCP) server that provides unlimited cont
 ## 📋 Available Tools
 
 ### 🚀 **ULTIMATE TOOL (Recommended)**
-- `extract_unlimited_authenticated_content` - **THE BEST OF EVERYTHING**: Unlimited extraction + optional Google auth + 100 scroll attempts
+- `extract_ultimate` - **THE BEST OF EVERYTHING**: Unlimited extraction + optional Google auth + 100 scroll attempts
 
 ### 🔥 Advanced Dynamic Extraction  
 - `extract_dynamic_content` - Google services with authentication (50 scroll attempts)
@@ -126,7 +126,7 @@ Credentials:
 Username: your-email@gmail.com
 Password: your-password-here
 
-Use extract_unlimited_authenticated_content for the ultimate extraction experience with unlimited content and Google authentication.
+Use extract_ultimate for the ultimate extraction experience with unlimited content and Google authentication.
 ```
 
 **For any public JavaScript-heavy sites (no authentication):**
@@ -135,7 +135,7 @@ Extract all content from this dynamic website, ensuring complete loading of lazy
 
 https://complex-website.com/long-article
 
-Use extract_unlimited_authenticated_content with empty credentials for unlimited extraction of public sites.
+Use extract_ultimate with empty credentials for unlimited extraction of public sites.
 Wait time: 15 seconds for initial load, then use progressive scrolling to capture everything.
 ```
 
@@ -150,7 +150,7 @@ For now, use browser session extraction if you're already logged in.
 ### 💡 Quick Tips
 
 **🚀 RECOMMENDED: Use the ultimate tool for everything:**
-- `extract_unlimited_authenticated_content` - Works for both authenticated AND public sites
+- `extract_ultimate` - Works for both authenticated AND public sites
 - **With credentials** → Perfect for Google/Gemini with unlimited extraction
 - **Without credentials** → Perfect for any public JavaScript site with unlimited extraction
 

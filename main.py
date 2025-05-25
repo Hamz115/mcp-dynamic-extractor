@@ -1167,7 +1167,7 @@ async def extract_unlimited_dynamic_content(url: str, wait_time: int = 10) -> st
         return f"Error during unlimited dynamic content extraction: {str(e)}"
 
 @mcp.tool()
-async def extract_unlimited_authenticated_content(url: str, email: str = "", password: str = "", wait_time: int = 10) -> str:
+async def extract_ultimate(url: str, email: str = "", password: str = "", wait_time: int = 10) -> str:
     """
     🚀 ULTIMATE EXTRACTION TOOL - Extract unlimited content from any website with optional Google authentication.
     Combines the best of both authenticated and unlimited extraction with up to 100 scroll attempts.
