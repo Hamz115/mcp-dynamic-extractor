@@ -57,9 +57,13 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-4. **Install Playwright browsers**:
+4. **Install Playwright browsers (CRITICAL STEP):**
 ```bash
 playwright install
+```
+Or for just Chromium (recommended):
+```bash
+playwright install chromium
 ```
 
 5. **Run the server**:
