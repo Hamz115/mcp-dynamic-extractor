@@ -129,6 +129,10 @@ Password: your-password-here
 Use extract_dynamic_content for the ultimate extraction experience with unlimited content and Google authentication.
 ```
 
+**⏰ Manual Scroll Time:** You'll have 90 seconds (1.5 minutes) to manually scroll to the very top of the conversation to load the complete chat history. If you don't need the full history, you can remain at the current position.
+
+*Coming soon: Automatic detection for "recent only" requests to skip the scroll wait time.*
+
 **For any public JavaScript-heavy sites (no authentication):**
 ```
 Extract all content from this dynamic website, ensuring complete loading of lazy-loaded elements:
