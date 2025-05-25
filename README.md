@@ -14,9 +14,12 @@ A comprehensive Model Context Protocol (MCP) server that provides unlimited cont
 
 ## 📋 Available Tools
 
-### 🔥 Advanced Dynamic Extraction
-- `extract_dynamic_content` - Google services with authentication + unlimited extraction
-- `extract_unlimited_dynamic_content` - Any JavaScript-heavy website with unlimited content
+### 🚀 **ULTIMATE TOOL (Recommended)**
+- `extract_unlimited_authenticated_content` - **THE BEST OF EVERYTHING**: Unlimited extraction + optional Google auth + 100 scroll attempts
+
+### 🔥 Advanced Dynamic Extraction  
+- `extract_dynamic_content` - Google services with authentication (50 scroll attempts)
+- `extract_unlimited_dynamic_content` - Any JavaScript-heavy website, unlimited content (100 scroll attempts, no auth)
 
 ### ⚡ Standard Extraction
 - `extract_url_content` - Basic HTTP extraction
@@ -108,6 +111,62 @@ Add to your MCP client configuration (e.g., `mcp.json`):
 ```
 
 ## 📖 Usage Examples
+
+### 🤖 AI Assistant Prompts
+
+**For Cursor, Claude, or other AI assistants with MCP support:**
+
+**Google/Gemini conversations (fully supported):**
+```
+Please extract the complete conversation content from this Gemini chat link, including all messages from the beginning to the most recent:
+
+https://gemini.google.com/app/your-conversation-id-here
+
+Credentials:
+Username: your-email@gmail.com
+Password: your-password-here
+
+Use extract_unlimited_authenticated_content for the ultimate extraction experience with unlimited content and Google authentication.
+```
+
+**For any public JavaScript-heavy sites (no authentication):**
+```
+Extract all content from this dynamic website, ensuring complete loading of lazy-loaded elements:
+
+https://complex-website.com/long-article
+
+Use extract_unlimited_authenticated_content with empty credentials for unlimited extraction of public sites.
+Wait time: 15 seconds for initial load, then use progressive scrolling to capture everything.
+```
+
+**For ChatGPT conversations:**
+```
+Note: ChatGPT authentication not yet supported. 
+Coming in future updates - will support OpenAI login flow.
+
+For now, use browser session extraction if you're already logged in.
+```
+
+### 💡 Quick Tips
+
+**🚀 RECOMMENDED: Use the ultimate tool for everything:**
+- `extract_unlimited_authenticated_content` - Works for both authenticated AND public sites
+- **With credentials** → Perfect for Google/Gemini with unlimited extraction
+- **Without credentials** → Perfect for any public JavaScript site with unlimited extraction
+
+**Currently supported authentication:**
+- ✅ **Google services** (Gemini, Google Docs, etc.) → Use the ultimate tool with credentials
+- ✅ **Public JavaScript sites** → Use the ultimate tool without credentials  
+- ✅ **Static websites** → `extract_url_content` (fastest for simple sites)
+- ✅ **Browser sessions** → `extract_with_browser_session` (if you have cookies)
+
+**Coming soon:**
+- 🔄 **ChatGPT/OpenAI** authentication
+- 🔄 **Twitter/X** authentication  
+- 🔄 **LinkedIn** authentication
+- 🔄 **Other social platforms**
+
+### 🔧 Direct API Usage
 
 ### Extract Unlimited Content from Any Site
 ```python

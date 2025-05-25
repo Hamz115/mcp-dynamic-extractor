@@ -1166,5 +1166,266 @@ async def extract_unlimited_dynamic_content(url: str, wait_time: int = 10) -> st
     except Exception as e:
         return f"Error during unlimited dynamic content extraction: {str(e)}"
 
+@mcp.tool()
+async def extract_unlimited_authenticated_content(url: str, email: str = "", password: str = "", wait_time: int = 10) -> str:
+    """
+    🚀 ULTIMATE EXTRACTION TOOL - Extract unlimited content from any website with optional Google authentication.
+    Combines the best of both authenticated and unlimited extraction with up to 100 scroll attempts.
+    
+    Args:
+        url: The URL to extract content from
+        email: Google email address (optional - leave empty for public sites)
+        password: Google password (optional - leave empty for public sites)
+        wait_time: Seconds to wait for initial page load (default: 10)
+    
+    Returns:
+        Complete unlimited content from the page - NO LENGTH LIMITS, WITH OR WITHOUT AUTH
+    """
+    try:
+        from playwright.async_api import async_playwright
+        
+        async with async_playwright() as p:
+            # Launch browser with anti-detection measures
+            browser = await p.chromium.launch(
+                headless=False,  # Keep visible for debugging
+                args=[
+                    '--disable-blink-features=AutomationControlled',
+                    '--disable-extensions',
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-accelerated-2d-canvas',
+                    '--no-first-run',
+                    '--no-zygote',
+                    '--disable-gpu'
+                ]
+            )
+            
+            try:
+                context = await browser.new_context(
+                    user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                )
+                page = await context.new_page()
+                
+                # Optional Google authentication
+                if email and password:
+                    print("Performing Google authentication...")
+                    
+                    # Navigate to Google login
+                    await page.goto('https://accounts.google.com/signin')
+                    await page.wait_for_load_state('networkidle')
+                    
+                    # Enter email
+                    email_input = await page.wait_for_selector('input[type="email"]', timeout=10000)
+                    await email_input.fill(email)
+                    await page.click('button:has-text("Next"), #identifierNext')
+                    
+                    # Wait for password field
+                    await page.wait_for_load_state('networkidle')
+                    password_input = await page.wait_for_selector('input[type="password"]', timeout=10000)
+                    await password_input.fill(password)
+                    await page.click('button:has-text("Next"), #passwordNext')
+                    
+                    # Wait for login to complete
+                    await page.wait_for_load_state('networkidle')
+                    await asyncio.sleep(3)
+                    
+                    print("Google authentication completed!")
+                
+                # Navigate to target URL
+                await page.goto(url)
+                await page.wait_for_load_state('networkidle')
+                await asyncio.sleep(wait_time)
+                
+                # UNLIMITED progressive scrolling - UP TO 100 ATTEMPTS
+                print("Starting UNLIMITED progressive content loading...")
+                previous_content_length = 0
+                stable_count = 0
+                max_scroll_attempts = 100
+                content_growth_history = []
+                
+                for scroll_attempt in range(max_scroll_attempts):
+                    # Advanced scrolling strategy with multiple interactions
+                    scroll_actions = [
+                        # Multi-directional scrolling
+                        lambda: page.evaluate("window.scrollTo(0, document.body.scrollHeight)"),
+                        lambda: page.evaluate("window.scrollTo(0, 0)"),
+                        lambda: page.evaluate("window.scrollTo(0, document.body.scrollHeight / 2)"),
+                        lambda: page.evaluate("window.scrollTo(0, document.body.scrollHeight * 0.25)"),
+                        lambda: page.evaluate("window.scrollTo(0, document.body.scrollHeight * 0.75)"),
+                        
+                        # Keyboard interactions
+                        lambda: page.keyboard.press('Space'),
+                        lambda: page.keyboard.press('PageDown'),
+                        lambda: page.keyboard.press('End'),
+                        lambda: page.keyboard.press('Home'),
+                        
+                        # Click interactions to trigger lazy loading
+                        lambda: page.click('body'),
+                    ]
+                    
+                    # Execute scroll action
+                    action = scroll_actions[scroll_attempt % len(scroll_actions)]
+                    try:
+                        await action()
+                    except Exception:
+                        pass
+                    
+                    await asyncio.sleep(2)  # Wait for content to load
+                    
+                    # Check content length growth
+                    current_content = await page.content()
+                    current_length = len(current_content)
+                    content_growth_history.append(current_length)
+                    
+                    print(f"Scroll attempt {scroll_attempt + 1}/{max_scroll_attempts}: Content length = {current_length}")
+                    
+                    # Advanced stability detection
+                    if len(content_growth_history) >= 5:
+                        recent_growth = content_growth_history[-5:]
+                        if all(length == recent_growth[0] for length in recent_growth):
+                            print(f"Content stabilized after {scroll_attempt + 1} scroll attempts")
+                            break
+                    
+                    previous_content_length = current_length
+                
+                # ULTIMATE content extraction with multiple strategies
+                print("Extracting UNLIMITED content using multiple comprehensive strategies...")
+                
+                all_extracted_content = set()  # Use set to avoid duplicates
+                
+                # Strategy 1: Conversation-specific extraction (for authenticated sites)
+                if email and password:
+                    conversation_content = ""
+                    for attempt in range(20):  # Try up to 20 times to find conversation
+                        try:
+                            # Multiple selectors for different conversation formats
+                            conversation_selectors = [
+                                '[data-message-author-role]',
+                                '.conversation-turn',
+                                '.message',
+                                '[role="presentation"]',
+                                '.model-response',
+                                '.user-message',
+                                '[data-testid*="conversation"]',
+                                '[data-testid*="message"]',
+                                '.chat-message',
+                                '.response-container'
+                            ]
+                            
+                            for selector in conversation_selectors:
+                                elements = await page.query_selector_all(selector)
+                                if elements:
+                                    print(f"Found {len(elements)} conversation elements with selector: {selector}")
+                                    for element in elements:
+                                        text = await element.inner_text()
+                                        if text and len(text.strip()) > 10:
+                                            all_extracted_content.add(text.strip())
+                                    break
+                            
+                            if len(all_extracted_content) > 0:
+                                break
+                                
+                        except Exception as e:
+                            print(f"Conversation extraction attempt {attempt + 1} failed: {e}")
+                            await asyncio.sleep(1)
+                
+                # Strategy 2: Comprehensive element-based extraction
+                try:
+                    elements = await page.query_selector_all('*')
+                    print(f"Found {len(elements)} total elements")
+                    
+                    for element in elements:
+                        try:
+                            text = await element.inner_text()
+                            if text and len(text.strip()) > 5:  # Only meaningful text
+                                all_extracted_content.add(text.strip())
+                        except Exception:
+                            pass
+                    
+                    print(f"Strategy 2 (element-based): {len(all_extracted_content)} unique text blocks")
+                    
+                except Exception as e:
+                    print(f"Strategy 2 failed: {e}")
+                
+                # Strategy 3: TreeWalker for aggressive text extraction
+                try:
+                    tree_walker_content = await page.evaluate("""
+                        function extractAllTextNodes() {
+                            const walker = document.createTreeWalker(
+                                document.body,
+                                NodeFilter.SHOW_TEXT,
+                                {
+                                    acceptNode: function(node) {
+                                        // Accept all text nodes with meaningful content
+                                        return node.nodeValue.trim().length > 3 ? 
+                                            NodeFilter.FILTER_ACCEPT : 
+                                            NodeFilter.FILTER_REJECT;
+                                    }
+                                },
+                                false
+                            );
+                            
+                            const textNodes = [];
+                            let node;
+                            while (node = walker.nextNode()) {
+                                textNodes.push(node.nodeValue.trim());
+                            }
+                            return textNodes;
+                        }
+                        extractAllTextNodes();
+                    """)
+                    
+                    if tree_walker_content:
+                        for text in tree_walker_content:
+                            if text and len(text.strip()) > 5:
+                                all_extracted_content.add(text.strip())
+                    
+                    print(f"Strategy 3 (TreeWalker): {len(all_extracted_content)} unique text blocks")
+                    
+                except Exception as e:
+                    print(f"Strategy 3 failed: {e}")
+                
+                # Strategy 4: Raw HTML parsing with BeautifulSoup
+                try:
+                    raw_content = await page.content()
+                    soup = BeautifulSoup(raw_content, 'html.parser')
+                    
+                    # Remove script and style elements
+                    for script in soup(["script", "style"]):
+                        script.decompose()
+                    
+                    # Extract all text content
+                    all_text_elements = soup.find_all(text=True)
+                    for text_element in all_text_elements:
+                        text = text_element.strip()
+                        if text and len(text) > 5:
+                            all_extracted_content.add(text)
+                    
+                    print(f"Strategy 4 (BeautifulSoup): {len(all_extracted_content)} unique text blocks")
+                    
+                except Exception as e:
+                    print(f"Strategy 4 failed: {e}")
+                
+                # Combine all extracted content
+                final_content = '\n\n'.join(sorted(all_extracted_content, key=len, reverse=True))
+                
+                auth_status = "WITH Google authentication" if email and password else "WITHOUT authentication (public site)"
+                
+                print(f"ULTIMATE extraction complete!")
+                print(f"Authentication: {auth_status}")
+                print(f"Total unique text blocks: {len(all_extracted_content)}")
+                print(f"Final content length: {len(final_content)} characters")
+                
+                return f"🚀 ULTIMATE EXTRACTION from {url} ({auth_status}):\n\nTotal text blocks: {len(all_extracted_content)}\nContent length: {len(final_content)} characters\n\n{final_content}"
+                
+            finally:
+                await browser.close()
+                
+    except ImportError:
+        return "Error: Playwright not installed. Run: pip install playwright && playwright install"
+    except Exception as e:
+        return f"Error during ultimate content extraction: {str(e)}"
+
 if __name__ == "__main__":
     mcp.run()
