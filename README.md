@@ -39,6 +39,8 @@ A comprehensive Model Context Protocol (MCP) server that provides unlimited cont
 
 ### Quick Setup
 
+**Tested on Cursor** ✅
+
 1. **Clone the repository**:
 ```bash
 git clone <your-repo-url>
@@ -71,19 +73,38 @@ python web_extractor.py
 ### MCP Client Setup
 Add to your MCP client configuration (e.g., `mcp.json`):
 
+**Note**: Copy `mcp.json.example` to `mcp.json` and update the paths for your system.
+
 ```json
 {
   "mcpServers": {
     "Web Content Extractor": {
       "name": "Web Content Extractor",
       "description": "Advanced MCP server with unlimited content extraction",
-      "command": "python",
-      "args": ["path/to/web_extractor.py"],
+      "command": "C:/full/path/to/your/venv/Scripts/python.exe",
+      "args": ["C:/full/path/to/web_extractor.py"],
       "protocol": "mcp",
       "capabilities": ["tools"]
     }
   }
 }
+```
+
+**Important Notes:**
+- **Use full paths** to both the virtual environment Python and the script
+- **Windows**: Use `venv/Scripts/python.exe`
+- **macOS/Linux**: Use `venv/bin/python`
+- **Replace paths** with your actual installation directories
+
+**Example paths:**
+```json
+// Windows example:
+"command": "C:/Users/YourName/Documents/mcp-server/venv/Scripts/python.exe",
+"args": ["C:/Users/YourName/Documents/mcp-server/web_extractor.py"]
+
+// macOS/Linux example:
+"command": "/Users/YourName/Documents/mcp-server/venv/bin/python",
+"args": ["/Users/YourName/Documents/mcp-server/web_extractor.py"]
 ```
 
 ## 📖 Usage Examples

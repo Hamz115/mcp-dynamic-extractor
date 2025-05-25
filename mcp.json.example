@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "Web Content Extractor": {
+      "name": "Web Content Extractor",
+      "description": "Advanced MCP server with unlimited content extraction",
+      "command": "C:/full/path/to/your/venv/Scripts/python.exe",
+      "args": ["C:/full/path/to/web_extractor.py"],
+      "protocol": "mcp",
+      "capabilities": ["tools"]
+    }
+  }
+} 

@@ -66,4 +66,7 @@ htmlcov/
 # Personal notes or sensitive data
 notes.txt
 secrets.txt
-credentials.txt 
+credentials.txt
+
+# MCP configuration (user-specific paths)
+mcp.json 
