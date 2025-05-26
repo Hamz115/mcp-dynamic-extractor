@@ -210,6 +210,7 @@ async def login_and_extract_google(url: str, email: str, password: str) -> str:
             
             try:
                 # Step 1: Login process with extended timeouts
+                print("Starting login process with extended timeouts...")
                 await page.goto('https://accounts.google.com/signin', wait_until='domcontentloaded', timeout=120000)  # Increased to 2 minutes
                 
                 # Enter email with longer timeout
@@ -225,10 +226,15 @@ async def login_and_extract_google(url: str, email: str, password: str) -> str:
                 await page.click('#passwordNext')
                 
                 # Wait for login to complete with much longer timeout
+                print("Waiting for login completion with extended timeout...")
                 await page.wait_for_timeout(10000)  # Increased wait time
                 
                 # Step 4: Wait for successful login or manual intervention
                 wait_timeout = 120  # Default timeout for login
+                print(f"\nWaiting up to {wait_timeout} seconds for login completion...")
+                print("If you see 2FA prompts, CAPTCHA, or other verification, please complete them manually.")
+                print("The browser window will stay open for your interaction.")
+                print("Waiting for successful login...")
                 
                 # Wait for either successful login or manual intervention
                 login_successful = False
@@ -273,10 +279,16 @@ The automated login process needs your help. The browser window is open and wait
 The browser will remain open for you to complete the login manually.
 """
                 
+                print("Login appears successful! Navigating to target URL...")
+                
                 # Step 2: Navigate to target URL
+                print(f"Navigating to: {url}")
                 await page.goto(url, wait_until='domcontentloaded', timeout=60000)
                 
                 # Step 2.5: Wait for the page to fully load and show chat content
+                print("Waiting for chat content to load...")
+                print("Please wait while the conversation loads...")
+                
                 # Wait for common Gemini chat elements to appear
                 chat_loaded = False
                 load_attempts = 0
@@ -300,6 +312,7 @@ The browser will remain open for you to complete the login manually.
                                 for element in elements:
                                     text_content = await element.inner_text()
                                     if text_content and len(text_content.strip()) > 50:
+                                        print(f"Chat content detected! Found content with {len(text_content)} characters")
                                         chat_loaded = True
                                         break
                                 if chat_loaded:
@@ -307,19 +320,42 @@ The browser will remain open for you to complete the login manually.
                         
                         if not chat_loaded:
                             load_attempts += 1
+                            print(f"Still loading... (attempt {load_attempts}/{max_load_attempts})")
                             await page.wait_for_timeout(2000)  # Wait 2 seconds between checks
                             
                     except Exception as e:
                         load_attempts += 1
+                        print(f"Loading check failed, retrying... (attempt {load_attempts}/{max_load_attempts})")
                         await page.wait_for_timeout(2000)
                 
+                if chat_loaded:
+                    print("Chat content has loaded successfully!")
+                    print("Now you should be able to see the conversation content.")
+                else:
+                    print("Chat content may still be loading, but proceeding with manual scroll...")
+                
                 # Additional wait to ensure everything is rendered
+                print("Allowing extra time for complete rendering...")
                 await page.wait_for_timeout(5000)  # Extra 5 seconds for full rendering
                 
                 # Step 6: MANUAL SCROLL WAIT - Give user time to scroll to the top
+                print("MANUAL SCROLL TIME!")
+                print("=" * 60)
+                print("PLEASE MANUALLY SCROLL TO THE VERY TOP OF THE CONVERSATION NOW!")
+                print("You have 90 seconds (1.5 minutes) to:")
+                print("1. Scroll ALL THE WAY UP to load the complete conversation history")
+                print("2. Make sure you reach the very first message")
+                print("3. Wait for all content to load")
+                print("=" * 60)
+                print("Waiting 90 seconds for manual scrolling...")
+                
                 # Wait exactly 90 seconds for manual scrolling
                 for countdown in range(90, 0, -1):
+                    print(f"Manual scroll time remaining: {countdown} seconds")
                     await page.wait_for_timeout(1000)  # Wait 1 second
+                
+                print("Manual scroll time complete! Starting extraction...")
+                print("=" * 60)
                 
                 # Step 7: Extract content from current page
                 content = await page.content()
@@ -380,6 +416,7 @@ The browser will remain open for you to complete the login manually.
                 return result
                 
             except Exception as e:
+                print(f"Error during login process: {e}")
                 return f"""
 # Login Process Error 
 
@@ -496,8 +533,10 @@ async def login_google_with_help(url: str, email: str, password: str, wait_timeo
                     email_input = await page.wait_for_selector('input[type="email"]', timeout=10000)
                     await email_input.fill(email)
                     await page.click('#identifierNext')
+                    print(f"Email entered: {email}")
                 except Exception as e:
-                    pass
+                    print(f"Could not auto-enter email: {e}")
+                    print("Please manually enter your email and continue...")
                 
                 # Step 3: Wait for password field and enter password
                 try:
@@ -506,10 +545,17 @@ async def login_google_with_help(url: str, email: str, password: str, wait_timeo
                     password_input = page.locator('input[type="password"]').first
                     await password_input.fill(password)
                     await page.click('#passwordNext')
+                    print("Password entered")
                 except Exception as e:
-                    pass
+                    print(f"Could not auto-enter password: {e}")
+                    print("Please manually enter your password and continue...")
                 
                 # Step 4: Wait for successful login or manual intervention
+                print(f"\nWaiting up to {wait_timeout} seconds for login completion...")
+                print("If you see 2FA prompts, CAPTCHA, or other verification, please complete them manually.")
+                print("The browser window will stay open for your interaction.")
+                print("Waiting for successful login...")
+                
                 # Wait for either successful login or manual intervention
                 login_successful = False
                 start_time = asyncio.get_event_loop().time()
@@ -553,6 +599,8 @@ The automated login process needs your help. The browser window is open and wait
 The browser will remain open for you to complete the login manually.
 """
                 
+                print("Login appears successful! Navigating to target URL...")
+                
                 # Step 5: Navigate to target URL
                 await page.goto(url, wait_until='networkidle')
                 await asyncio.sleep(3)  # Wait for page to fully load
@@ -589,6 +637,7 @@ The browser will remain open for you to complete the login manually.
                 return result
                 
             except Exception as e:
+                print(f"Error during login process: {e}")
                 return f"""
 # Login Process Error 
 
@@ -929,8 +978,10 @@ async def extract_from_open_browser(url: str) -> str:
             # Try to connect to existing browser or launch new one
             try:
                 browser = await p.chromium.connect_over_cdp("http://localhost:9222")
+                print("Connected to existing browser session")
             except:
                 browser = await p.chromium.launch(headless=False)
+                print("Launched new browser session")
             
             # Get all pages/tabs
             contexts = browser.contexts
@@ -1048,6 +1099,7 @@ async def extract_dynamic_content(url: str, email: str, password: str) -> str:
                 await page.goto(url, wait_until='domcontentloaded', timeout=60000)
                 
                 # Step 2.5: Wait for the page to fully load and show chat content
+                
                 # Wait for common Gemini chat elements to appear
                 chat_loaded = False
                 load_attempts = 0
@@ -1071,6 +1123,7 @@ async def extract_dynamic_content(url: str, email: str, password: str) -> str:
                                 for element in elements:
                                     text_content = await element.inner_text()
                                     if text_content and len(text_content.strip()) > 50:
+                                        print(f"Chat content detected! Found content with {len(text_content)} characters")
                                         chat_loaded = True
                                         break
                                 if chat_loaded:
@@ -1078,19 +1131,42 @@ async def extract_dynamic_content(url: str, email: str, password: str) -> str:
                         
                         if not chat_loaded:
                             load_attempts += 1
+                            print(f"Still loading... (attempt {load_attempts}/{max_load_attempts})")
                             await page.wait_for_timeout(2000)  # Wait 2 seconds between checks
                             
                     except Exception as e:
                         load_attempts += 1
+                        print(f"Loading check failed, retrying... (attempt {load_attempts}/{max_load_attempts})")
                         await page.wait_for_timeout(2000)
                 
+                if chat_loaded:
+                    print("Chat content has loaded successfully!")
+                    print("Now you should be able to see the conversation content.")
+                else:
+                    print("Chat content may still be loading, but proceeding with manual scroll...")
+                
                 # Additional wait to ensure everything is rendered
+                print("Allowing extra time for complete rendering...")
                 await page.wait_for_timeout(5000)  # Extra 5 seconds for full rendering
                 
                 # Step 6: MANUAL SCROLL WAIT - Give user time to scroll to the top
+                print("MANUAL SCROLL TIME!")
+                print("=" * 60)
+                print("PLEASE MANUALLY SCROLL TO THE VERY TOP OF THE CONVERSATION NOW!")
+                print("You have 90 seconds (1.5 minutes) to:")
+                print("1. Scroll ALL THE WAY UP to load the complete conversation history")
+                print("2. Make sure you reach the very first message")
+                print("3. Wait for all content to load")
+                print("=" * 60)
+                print("Waiting 90 seconds for manual scrolling...")
+                
                 # Wait exactly 90 seconds for manual scrolling
                 for countdown in range(90, 0, -1):
+                    print(f"Manual scroll time remaining: {countdown} seconds")
                     await page.wait_for_timeout(1000)  # Wait 1 second
+                
+                print("Manual scroll time complete! Starting extraction...")
+                print("=" * 60)
                 
                 # Step 7: Extract content from current page
                 content = await page.content()
@@ -1207,12 +1283,15 @@ async def extract_unlimited_dynamic_content(url: str, wait_time: int = 10) -> st
             page = await context.new_page()
             
             try:
+                print(f"Navigating to: {url}")
                 await page.goto(url, wait_until='domcontentloaded', timeout=60000)
                 
                 # Initial wait for page to load
+                print(f"Waiting {wait_time} seconds for initial content load...")
                 await page.wait_for_timeout(wait_time * 1000)
                 
                 # Progressive content loading with unlimited scrolling
+                print("Starting unlimited progressive content loading...")
                 previous_content_length = 0
                 stable_count = 0
                 max_stable_attempts = 8  # More attempts for complex sites
@@ -1240,10 +1319,12 @@ async def extract_unlimited_dynamic_content(url: str, wait_time: int = 10) -> st
                     current_content = await page.evaluate('document.body.innerText.length')
                     
                     if current_content > previous_content_length:
+                        print(f"Content growing: {current_content:,} characters (was {previous_content_length})")
                         previous_content_length = current_content
                         stable_count = 0  # Reset stable count
                     else:
                         stable_count += 1
+                        print(f"Content stable: {current_content:,} characters (attempt {stable_count}/{max_stable_attempts})")
                     
                     scroll_attempts += 1
                     
@@ -1264,10 +1345,15 @@ async def extract_unlimited_dynamic_content(url: str, wait_time: int = 10) -> st
                         except:
                             pass
                 
+                print(f"Content loading complete after {scroll_attempts} scroll attempts. Final length: {previous_content_length:,} characters")
+                
                 # UNLIMITED content extraction using multiple comprehensive strategies
+                print("Extracting ALL content using multiple strategies...")
+                
                 # Strategy 1: Comprehensive element-based extraction
                 full_content = await page.evaluate('''
                     () => {
+                        console.log('Starting comprehensive content extraction...');
                         let content = '';
                         let extractedSections = 0;
                         
@@ -1281,6 +1367,8 @@ async def extract_unlimited_dynamic_content(url: str, wait_time: int = 10) -> st
                             [class*="post"], [class*="article"], [class*="comment"],
                             [id*="content"], [id*="text"], [id*="main"]
                         `);
+                        
+                        console.log(`Found ${contentElements.length} potential content elements`);
                         
                         // Extract text from each element, avoiding duplicates
                         const extractedTexts = new Set();
@@ -1311,14 +1399,17 @@ async def extract_unlimited_dynamic_content(url: str, wait_time: int = 10) -> st
                             }
                         });
                         
+                        console.log(`Extracted ${extractedSections} unique content sections, ${content.length} characters`);
                         return content;
                     }
                 ''')
                 
                 # Strategy 2: If content is still limited, use TreeWalker for deep extraction
                 if len(full_content) < 2000:
+                    print("Using TreeWalker for deep text extraction...")
                     additional_content = await page.evaluate('''
                         () => {
+                            console.log('Starting TreeWalker deep extraction...');
                             const walker = document.createTreeWalker(
                                 document.body,
                                 NodeFilter.SHOW_TEXT,
@@ -1351,6 +1442,7 @@ async def extract_unlimited_dynamic_content(url: str, wait_time: int = 10) -> st
                                 }
                             }
                             
+                            console.log(`TreeWalker extracted ${nodeCount} unique text nodes, ${content.length} characters`);
                             return content;
                         }
                     ''')
@@ -1360,6 +1452,7 @@ async def extract_unlimited_dynamic_content(url: str, wait_time: int = 10) -> st
                 
                 # Strategy 3: Raw HTML parsing as final fallback
                 if len(full_content) < 1000:
+                    print("Using raw HTML parsing as fallback...")
                     html_content = await page.content()
                     from bs4 import BeautifulSoup
                     soup = BeautifulSoup(html_content, 'lxml')
